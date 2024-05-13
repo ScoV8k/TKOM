@@ -65,13 +65,7 @@ fun process_object(obj) {
 ```
 program ::= { global_statement };
 
-global_statement ::= declaration 
-                   | assignment 
-                   | if_statement 
-                   | while_loop 
-                   | function_def 
-                   | type_match 
-                   | expression_statement
+global_statement ::= function_def 
                    | object_def ;
 
 block_statement ::= declaration 
@@ -79,50 +73,49 @@ block_statement ::= declaration
                   | if_statement 
                   | while_loop 
                   | type_match 
-                  | expression_statement
+                  | expression
                   | return_statement ;
 
 object_def ::= "class", identifier, "{", { class_member }, "}" ;
 class_member ::= declaration | function_def;
 
-declaration ::= "var", identifier, [ "=", expression ], ";" ;
-assignment ::= identifier, "=", expression, ";" ;
+declaration ::= type, identifier, [ "=", expression ], ";" ;
+assignment ::= obj_access, "=", expression, ";" ;
 
 if_statement ::= "if", "(", expression, ")", block, [ "else", block ] ;
 while_loop ::= "while", "(", expression, ")", block ;
 
 return_statement ::= "return", [ expression ], ";" ;
 
-function_def ::= "fun", identifier, "(", [ parameters ], ")", block ;
-parameters ::= identifier, { ",", identifier } ;
+function_def ::= func_type, identifier, "(", [ parameters ], ")", block ;
+parameters ::= type, identifier, { ",", type, identifier } ;
 identifier_or_function_call ::= identifier, [ "(", [ arguments ], ")" ]; 
 arguments ::= expression, { ",", expression } ;
 
-
-type_match ::= identifier, "match", "{", { match_case }, "}" ;
+type_match ::= expression, "as", identifier, "match", "{", { match_case }, "}" ;
 match_case ::= type, "=>", block
              | "_", "=>", block ;
 
-block ::= "{", { statement }, "}" ;
+block ::= "{", { block_statement }, "}" ;
 
-expression_statement ::= expression, ";" ;
-
-expression ::= logical_expression ;
-logical_expression ::= equality_expression, { "&&" | "||", equality_expression } ;
-equality_expression ::= relational_expression, { "==" | "!=", relational_expression } ;
+expression ::= or_expression ;
+or_expression ::= and_expression, { "||", and_expression } ;
+and_expression ::= equality_expression, { "&&", equality_expression } ;
+equality_expression ::= relational_expression, [ "==" | "!=", relational_expression ] ;
 relational_expression ::= add_expression, [ "<" | ">" | "<=" | ">=", add_expression ] ;
 add_expression ::= mul_expression, { "+", | "-", mul_expression } ;
 mul_expression ::= unary_expression, { "*", | "/", unary_expression } ;
-unary_expression ::= [ "-", | "not", | "!", ], type_expression ;
+unary_expression ::= [ "-", | "not", | "!" ], type_expression ;
 type_expression ::= factor, [ "is", type ] ;
 
-factor ::= literal | "(", expression, ")", | obj_access  ;
+factor ::= literal | "(", expression, ")", | obj_access ;
 
 obj_access ::= item, { ".", item } ;
 item ::= identifier_or_function_call ;
 
+func_type ::= "void" | type ;
 
-type ::= "int" | "float" | "bool" | "string" | custom_type;
+type ::= "int" | "float" | "bool" | "string" | custom_type ;
 custom_type ::= identifier;
 
 literal ::= integer | float | bool | string ;
@@ -132,7 +125,6 @@ bool ::= "true" | "false" ;
 string ::= '"', { any_character - '"' }, '"' ;
 
 identifier ::= letter, { letter | digit | "_" } ;
-
 
 digit ::= non_zero | zero ;
 non_zero ::= "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
