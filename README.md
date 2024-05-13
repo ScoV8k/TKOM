@@ -3,36 +3,141 @@ Programming language with object definition and type matching. Compilation Techn
 
 # Opis języka
 
-Język programowania skoncentrowany na definiowaniu i manipulacji obiektami oraz zastosowaniu mechanizmu type matching. Jego główną cechą jest umożliwienie użytkownikom tworzenia własnych typów obiektów, wraz z ich atrybutami i metodami. Kluczową funkcjonalnością jest mechanizm type matching, który pozwala na wykonanie różnych operacji w zależności od typu przekazanego obiektu. 
+Język programowania skupiający się na definiowaniu i manipulacji obiektami oraz wykorzystaniu mechanizmu dopasowywania typów. Pozwala na tworzenie własnych typów obiektów z ich atrybutami i metodami. Kluczową funkcją jest mechanizm dopasowywania typów, umożliwiający różne operacje w zależności od typu obiektu.
 
-Interpreter dla tego języka jest tworzony w Pythonie.
+Interpreter tego języka jest tworzony w Pythonie.
+
+## Funkcjonalności Standardowe
+
+### Podstawowe Typy Danych i Operacje
+Obsługuje typy liczbowe **int/float** z operacjami matematycznymi (np. `+`, `-`, `*`, `/`), typ **bool** oraz typy znakowe (**stringi**) z możliwością konkatenacji.
+
+### Zmienne
+Umożliwia tworzenie zmiennych, przypisywanie wartości i ich odczyt. Język oferuje **dynamiczne i silne typowanie**. Zmienne są **mutowalne**.
+
+### Komentarze
+Wsparcie dla komentarzy jednoliniowych, rozpoczynających się od `#`.
+
+### Instrukcje Warunkowe i Pętle
+Wspiera konstrukcje warunkowe i pętle.
+
+### Funkcje
+Pozwala na definiowanie własnych funkcji z dynamiczną semantyką przekazywania argumentów.
+
+### Rekursja
+Obsługuje rekursywne wywołania funkcji.
+
+### Obsługa Błędów
+Implementuje mechanizmy obsługi błędów.
+
+## Funkcjonalności Dodatkowe
+
+### Definiowanie Obiektów
+Umożliwia definiowanie własnych obiektów z konstruktorami, atrybutami i metodami.
+
+```python
+obj Student {
+    name: string,
+    age: int,
+    greet() => print("Hello, " + this.name)
+}
+```
+
+### Dopasowywanie Typów
+Mechanizm dopasowywania typów pozwala na wykonanie różnych operacji w zależności od typu obiektu.
+
+```python
+fun process_object(obj) {
+    obj match {
+        Student => print("Hello student ", obj.name),
+        Teacher => print("Good morning sir"),
+        _ => print("Unknown object type")
+    }
+}
+```
+
+## Wymagania Niefunkcjonalne
+- Język programowania: Python
+- Podział na moduły: lexer, parser, interpreter
+
+## Gramatyka
+
+```
+program ::= { global_statement };
+
+global_statement ::= declaration 
+                   | assignment 
+                   | if_statement 
+                   | while_loop 
+                   | function_def 
+                   | type_match 
+                   | expression_statement
+                   | object_def ;
+
+block_statement ::= declaration 
+                  | assignment 
+                  | if_statement 
+                  | while_loop 
+                  | type_match 
+                  | expression_statement
+                  | return_statement ;
+
+object_def ::= "class", identifier, "{", { class_member }, "}" ;
+class_member ::= declaration | function_def;
+
+declaration ::= "var", identifier, [ "=", expression ], ";" ;
+assignment ::= identifier, "=", expression, ";" ;
+
+if_statement ::= "if", "(", expression, ")", block, [ "else", block ] ;
+while_loop ::= "while", "(", expression, ")", block ;
+
+return_statement ::= "return", [ expression ], ";" ;
+
+function_def ::= "fun", identifier, "(", [ parameters ], ")", block ;
+parameters ::= identifier, { ",", identifier } ;
+identifier_or_function_call ::= identifier, [ "(", [ arguments ], ")" ]; 
+arguments ::= expression, { ",", expression } ;
 
 
+type_match ::= identifier, "match", "{", { match_case }, "}" ;
+match_case ::= type, "=>", block
+             | "_", "=>", block ;
 
-# Podstawowe Funkcjonalności Języka
+block ::= "{", { statement }, "}" ;
 
-- **Dynamiczne Typowanie**: Typ zmiennej określany jest w momencie przypisania wartości, nie wymaga deklaracji typu przed przypisaniem.
+expression_statement ::= expression, ";" ;
 
-- **Definiowanie i Użycie Obiektów**: Umożliwienie definiowania własnych klas wraz z ich atrybutami i metodami. Możliwość tworzenia instancji tych klas i manipulowanie nimi.
+expression ::= logical_expression ;
+logical_expression ::= equality_expression, { "&&" | "||", equality_expression } ;
+equality_expression ::= relational_expression, { "==" | "!=", relational_expression } ;
+relational_expression ::= add_expression, [ "<" | ">" | "<=" | ">=", add_expression ] ;
+add_expression ::= mul_expression, { "+", | "-", mul_expression } ;
+mul_expression ::= unary_expression, { "*", | "/", unary_expression } ;
+unary_expression ::= [ "-", | "not", | "!", ], type_expression ;
+type_expression ::= factor, [ "is", type ] ;
 
-- **Type Matching**: Mechanizm pozwalający na wykonanie różnych operacji w zależności od typu przekazanego obiektu, umożliwiający bardziej elastyczne podejście do programowania.
+factor ::= literal | "(", expression, ")", | obj_access  ;
 
-- **Podstawowe Typy Danych i Operacje**: Wsparcie dla typów danych takich jak `int`, `float`, `bool`, `string` oraz operacje arytmetyczne i logiczne z zachowaniem kolejności działań.
+obj_access ::= item, { ".", item } ;
+item ::= identifier_or_function_call ;
 
-- **Kontrola Przepływu Programu**: Instrukcje warunkowe (`if`, `else`), pętle (`while`), oraz instrukcje sterujące (`return`, `break`, `continue`).
 
-- **Funkcje**: Możliwość definiowania i wywoływania własnych funkcji, w tym rekursji. Przekazywanie argumentów do funkcji i zwracanie wartości.
+type ::= "int" | "float" | "bool" | "string" | custom_type;
+custom_type ::= identifier;
 
-- **Obsługa Wejścia/Wyjścia**: Funkcje do wypisywania danych na standardowe wyjście (`print()`) i wczytywania danych od użytkownika (`input()`).
+literal ::= integer | float | bool | string ;
+float ::= integer, ".", digit, { digit } ;
+integer  ::= zero | (non_zero_digit, {digit}) ;
+bool ::= "true" | "false" ;
+string ::= '"', { any_character - '"' }, '"' ;
 
-- **Komentarze**: Wsparcie dla komentarzy w jednej linii, rozpoczynających się od znaku `#`.
+identifier ::= letter, { letter | digit | "_" } ;
 
-- **Blok Kodu**: Użycie nawiasów klamrowych do ograniczenia bloków kodu i średników do zakończenia instrukcji.
 
-# Dodatkowe Funkcjonalności
+digit ::= non_zero | zero ;
+non_zero ::= "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+zero ::= "0" ;
+letter ::= "A" | "B" | "C" | ... | "Z" | "a" | "b" | "c" | ... | "z" ;
+any_character ::= ? all visible characters ? ;
 
-- **Mutowalność i Widoczność Zmiennych**: Zmienne są mutowalne, z zasięgiem widoczności ograniczonym do bloków, w których zostały zadeklarowane.
-
-- **Rzutowanie Typów**: Możliwość rzutowania typów, szczególnie przydatne przy operacjach na typach liczbowych.
-
-- **Obsługa Błędów**: Mechanizmy pozwalające na obsługę błędów, które mogą pojawić się podczas wykonania programu.
+```

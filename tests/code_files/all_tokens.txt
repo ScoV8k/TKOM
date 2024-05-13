@@ -1,0 +1,4 @@
+int float bool string class as match while if else true false void return is
++ - * / = > < ( ) { } . , ; ! # some comment
+== != <= >= || && ->
+some_identifier_2 351 24.77 "halo"
